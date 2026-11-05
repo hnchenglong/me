@@ -1,2 +1,1 @@
-# longcheng
-longcheng.dev
+# longcheng.dev
