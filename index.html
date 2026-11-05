@@ -386,15 +386,20 @@
     .footer a:hover, .footer a:focus-visible { color: var(--accent); }
 
     /* ============ i18n visibility ============
-       Both languages are stacked in one grid cell (height = the taller one),
-       inactive one is merely invisible — so switching languages never shifts layout.
+       Both languages are stacked in one grid cell (height = the taller one).
+       Switching is a crossfade: the outgoing text fades out while the incoming
+       one fades in — never a hard visibility flip, and no layout shift either
+       since both stay in the flow (grid stack, opacity only).
        JS sets html[data-lang] before first paint.
        No JS => data-lang missing => English visible. */
     .i18n { display: grid; text-align: inherit; }
-    .i18n > * { grid-area: 1 / 1; }
-    [data-lang="zh"] .i18n > [lang="en"]       { visibility: hidden; }
-    [data-lang="en"] .i18n > [lang="zh"]       { visibility: hidden; }
-    html:not([data-lang]) .i18n > [lang="zh"]   { visibility: hidden; }
+    .i18n > * { grid-area: 1 / 1; transition: opacity 0.8s ease; }
+    /* the terminal tagline swaps instantly: its blink cursor already animates,
+       a crossfade would read as one blur too many */
+    .hero-tagline { transition: none; }
+    [data-lang="zh"] .i18n > [lang="en"],
+    [data-lang="en"] .i18n > [lang="zh"],
+    html:not([data-lang]) .i18n > [lang="zh"] { opacity: 0; }
 
     /* panel label: both langs stacked, each anchored to the cell's left edge.
        Hidden one keeps its width for layout stability (no jump on switch),
@@ -406,11 +411,11 @@
       justify-items: start;
       align-items: start;
     }
-    .i18n-group > span { grid-area: 1 / 1; white-space: nowrap; }
+    .i18n-group > span { grid-area: 1 / 1; white-space: nowrap; transition: opacity 0.3s ease; }
     [data-lang="zh"] .i18n-group > [lang="en"],
     [data-lang="en"] .i18n-group > [lang="zh"],
     html:not([data-lang]) .i18n-group > [lang="zh"] {
-      visibility: hidden;
+      opacity: 0;
       /* keep占位 but don't stretch the cell wider than需要 for the visible text */
       max-width: min-content;
     }
